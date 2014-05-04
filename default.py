@@ -1402,9 +1402,9 @@ def processDirectory(url, results, progress):
                    'tvshow.poster': getArtwork(item, "tvshow.poster") ,
                    'banner'       : getArtwork(item, "Banner") ,
                    'clearlogo'    : getArtwork(item, "Logo") ,
-                   'discart'         : getArtwork(item, "Disc") ,
+                   'discart'      : getArtwork(item, "Disc") ,
                    'clearart'     : getArtwork(item, "Art") ,
-                   'landscape'    : getArtwork(item, "Backdrop") ,
+                   'landscape'    : getArtwork(item, "Thumb") ,
                    'id'           : id ,
                    'mpaa'         : item.get("OfficialRating"),
                    'rating'       : item.get("CommunityRating"),
@@ -1565,7 +1565,7 @@ def processSearch(url, results, progress):
                    'clearlogo'    : getArtwork(item, "Logo") ,
                    'discart'      : getArtwork(item, "Disc") ,
                    'clearart'     : getArtwork(item, "Art") ,
-                   'landscape'    : getArtwork(item, "Backdrop") ,
+                   'landscape'    : getArtwork(item, "Thumb") ,
                    'id'           : id ,
                    'year'         : item.get("ProductionYear"),
                    'watchedurl'   : 'http://' + server + '/mediabrowser/Users/'+ userid + '/PlayedItems/' + id,
@@ -1598,8 +1598,11 @@ def getArtwork(data, type):
         id = data.get("SeasonId")
     if type == "poster" or type == "tvshow.poster": # Now that the Ids are right, change type to MB3 name
         type="Primary"
-    if data.get("Type") == "Episode" or data.get("Type") == "Season":  # If we aren't delling with the poster, use series art
-        if type != "Primary" or __settings__.getSetting('useSeriesArt') == "true":
+    if data.get("Type") == "Season":  # For seasons: primary (poster), thumb and banner get season art, rest series art
+        if type != "Primary" and type != "Thumb" and type != "Banner" or __settings__.getSetting('useSeriesArt') == "true":
+            id = data.get("SeriesId")
+    if data.get("Type") == "Episode":  # For episodes: primary (episode thumb) gets episode art, rest series art
+        if type != "Primary":
             id = data.get("SeriesId")
     imageTag = ""
     if(data.get("ImageTags") != None and data.get("ImageTags").get(type) != None):
